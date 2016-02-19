@@ -106,6 +106,17 @@
 
 #pragma mark - Table view data source
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    id<NSFetchedResultsSectionInfo> sectionInfo = self.fetchedResultsController.sections[section];
+    NSLog(@"%@", sectionInfo.name);
+    
+    if ([sectionInfo.name isEqualToString:@"0"]) {
+        return @"Not bought";
+    } else {
+        return @"Bought";
+    }
+}
+
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return [self.fetchedResultsController.sections count];
 }
@@ -114,7 +125,6 @@
     id<NSFetchedResultsSectionInfo> sectionInfo = self.fetchedResultsController.sections[section];
     return sectionInfo.numberOfObjects;
 }
-
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CellIdentifier" forIndexPath:indexPath];
@@ -127,6 +137,7 @@
     }
     return cell;
 }
+
 
 
 /*
