@@ -28,7 +28,6 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewBasket:)];
 }
 
-
 -(void) viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.tableView deselectRowAtIndexPath:[self.tableView indexPathForSelectedRow] animated:YES];
@@ -36,12 +35,25 @@
 
 #pragma mark - Action methods
 
--(void) addNewBasket:(id)sender {
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"New Basket" message:@"Enter name" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Create", nil];
-    alertView.alertViewStyle = UIAlertViewStylePlainTextInput;
-    [alertView show];
+- (void) addNewBasket:(id)sender {
+    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"New Basket" message:@"Enter name" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+    }];
+    [controller addAction:action];
+    [controller addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        [textField setKeyboardType:UIKeyboardTypeDefault];
+        textField.placeholder = @"Basket name";
+    }];
+    action = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *textFieldName = controller.textFields[0];
+        [self createBasketWithName:textFieldName.text];
+    }];
+    
+    [controller addAction:action];
+    [self presentViewController:controller animated:YES completion:NULL];
+    
 }
-
 
 #pragma mark - Private methods
 
@@ -64,8 +76,6 @@
     return _fetchedResultsController;
 }
 
-
-
 -(void) createBasketWithName:(NSString *)name {
     NSManagedObjectContext *context = [CoreDataManager sharedInstance].managedObjectContext;
     CDBasket *basket = [NSEntityDescription insertNewObjectForEntityForName:[[CDBasket class] description]
@@ -73,7 +83,6 @@
     basket.name = name;
     [[CoreDataManager sharedInstance] saveContext];
 }
-
 
 #pragma mark - Delegated methods
 
@@ -92,25 +101,11 @@
     }
 }
 
-
--(BOOL) alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView {
-    UITextField *textFied = [alertView textFieldAtIndex:0];
-    return [textFied.text length];
-}
-
-
--(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    UITextField *textFied = [alertView textFieldAtIndex:0];
-    [self createBasketWithName:textFied.text];
-}
-
-
 #pragma mark - UITableViewDataSource Delegated methods
 
 -(NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return [self.fetchedResultsController.fetchedObjects count];
 }
-
 
 -(UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CellIdentifier" forIndexPath:indexPath];
@@ -120,11 +115,9 @@
     return cell;
 }
 
-
 -(void) controllerWillChangeContent:(NSFetchedResultsController *)controller {
     [self.tableView beginUpdates];
 }
-
 
 -(void) controller:(NSFetchedResultsController *)controller
   didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo
@@ -145,7 +138,6 @@
             break;
     }
 }
-
 
 -(void) controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject
        atIndexPath:(NSIndexPath *)indexPath
@@ -186,7 +178,6 @@
             break;
     }
 }
-
 
 -(void) controllerDidChangeContent:(NSFetchedResultsController *)controller {
     [self.tableView endUpdates];
