@@ -71,11 +71,18 @@
     }];
     [controller addAction:action];
     [controller addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        [textField setKeyboardType:UIKeyboardTypeDefault];
         textField.placeholder = @"Product name";
     }];
+    [controller addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        [textField setKeyboardType:UIKeyboardTypeDecimalPad];
+        textField.placeholder = @"Product price";
+    }];
     action = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        UITextField *textField = controller.textFields[0];
-        [self createProductWithName:textField.text];
+        UITextField *textFieldName = controller.textFields[0];
+        UITextField *textFieldPrice = controller.textFields[1];
+        NSDecimalNumber *productPrice = [NSDecimalNumber decimalNumberWithString:textFieldPrice.text];
+        [self createProductWithName:textFieldName.text andPrice:productPrice];
     }];
     
     [controller addAction:action];
@@ -83,11 +90,12 @@
 }
 
 
--(void) createProductWithName:(NSString *)name {
+-(void) createProductWithName:(NSString *)name andPrice:(NSDecimalNumber *)price{
     NSManagedObjectContext *context = [CoreDataManager sharedInstance].managedObjectContext;
     CDProduct *product = [NSEntityDescription insertNewObjectForEntityForName:[[CDProduct class] description]
                                                      inManagedObjectContext:context];
     product.name = name;
+    product.price = price;
     [self.basket addProductsObject:product];
     [context save:nil];
 }
@@ -108,13 +116,25 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     id<NSFetchedResultsSectionInfo> sectionInfo = self.fetchedResultsController.sections[section];
-    NSLog(@"%@", sectionInfo.name);
     
     if ([sectionInfo.name isEqualToString:@"0"]) {
         return @"Not bought";
     } else {
         return @"Bought";
     }
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
+    id<NSFetchedResultsSectionInfo> sectionInfo = self.fetchedResultsController.sections[section];
+    
+    if ([sectionInfo.name isEqualToString:@"0"]) {
+        return @"";
+    }
+    
+    NSPredicate * completePredicate = [NSPredicate predicateWithFormat:@"complete = %@", @YES];
+    NSArray * boughtProducts = [self.fetchedResultsController.fetchedObjects filteredArrayUsingPredicate:completePredicate];
+    
+    return @"Some price";
 }
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
