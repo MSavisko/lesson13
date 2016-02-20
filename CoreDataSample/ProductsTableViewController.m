@@ -119,6 +119,13 @@
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
  }
 
+- (NSString *)totalPriceForProduct:(CDProduct*)product {
+    NSDecimalNumber * productAmount = [[NSDecimalNumber alloc]initWithUnsignedLong:product.amount];
+    NSDecimalNumber * totalResult = [product.price decimalNumberByMultiplyingBy:productAmount];
+    NSString * total = [NSString stringWithFormat:@"Number: %ld Total: %@", (long)product.amount, totalResult];
+    return total;
+}
+
 #pragma mark - Table view data source
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -168,8 +175,10 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CellIdentifier" forIndexPath:indexPath];
+    cell = [cell initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"CellIdentifier"];
     CDProduct *product = [self.fetchedResultsController objectAtIndexPath:indexPath];
     cell.textLabel.text = product.name;
+    cell.detailTextLabel.text = [NSString stringWithString:[self totalPriceForProduct:product]];
     if ([product.complete boolValue]) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
     } else {
