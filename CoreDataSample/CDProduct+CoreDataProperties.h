@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSDecimalNumber *actualPrice;
 @property (nullable, nonatomic, retain) NSNumber *complete;
 @property (nullable, nonatomic, retain) NSManagedObject *basket;
+@property (nonatomic) NSInteger amount;
 
 @end
 

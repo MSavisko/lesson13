@@ -78,11 +78,17 @@
         [textField setKeyboardType:UIKeyboardTypeDecimalPad];
         textField.placeholder = @"Product price";
     }];
+    [controller addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        [textField setKeyboardType:UIKeyboardTypeNumberPad];
+        textField.placeholder = @"Product amount";
+    }];
     action = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         UITextField *textFieldName = controller.textFields[0];
         UITextField *textFieldPrice = controller.textFields[1];
+        UITextField *textFieldAmount = controller.textFields[2];
         NSDecimalNumber *productPrice = [NSDecimalNumber decimalNumberWithString:textFieldPrice.text];
-        [self createProductWithName:textFieldName.text andPrice:productPrice];
+        NSInteger amount = [textFieldAmount.text integerValue];
+        [self createProductWithName:textFieldName.text andPrice:productPrice andAmount:amount];
     }];
     
     [controller addAction:action];
@@ -90,12 +96,13 @@
 }
 
 
--(void) createProductWithName:(NSString *)name andPrice:(NSDecimalNumber *)price{
+-(void) createProductWithName:(NSString *)name andPrice:(NSDecimalNumber *)price andAmount:(NSInteger)amount{
     NSManagedObjectContext *context = [CoreDataManager sharedInstance].managedObjectContext;
     CDProduct *product = [NSEntityDescription insertNewObjectForEntityForName:[[CDProduct class] description]
                                                      inManagedObjectContext:context];
     product.name = name;
     product.price = price;
+    product.amount = amount;
     [self.basket addProductsObject:product];
     [context save:nil];
 }
@@ -134,8 +141,21 @@
     NSPredicate * completePredicate = [NSPredicate predicateWithFormat:@"complete = %@", @YES];
     NSArray * boughtProducts = [self.fetchedResultsController.fetchedObjects filteredArrayUsingPredicate:completePredicate];
     
-    return @"Some price";
+    NSDecimalNumber * totalSum = [NSDecimalNumber zero];
+    
+    for (int i = 0; i < [boughtProducts count]; i++) {
+        CDProduct * product = boughtProducts[i];
+        NSDecimalNumber * decimalAmount = [[NSDecimalNumber alloc]initWithUnsignedLong:product.amount];
+        NSDecimalNumber * intermediarySum = [product.price decimalNumberByMultiplyingBy:decimalAmount];
+        totalSum = [totalSum decimalNumberByAdding:intermediarySum];
+        NSLog(@"Total Sum in FOR: %@", totalSum);
+    }
+    NSLog(@"Total Sum AFTER FOR: %@", totalSum);
+    NSString * footer = [NSString stringWithFormat:@"Total Sum: %@", totalSum];
+    
+    return footer;
 }
+
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return [self.fetchedResultsController.sections count];
