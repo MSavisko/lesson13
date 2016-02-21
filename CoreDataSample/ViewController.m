@@ -36,7 +36,7 @@
 #pragma mark - Action methods
 
 - (void) addNewBasket:(id)sender {
-    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"New Basket" message:@"Enter name" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"New Basket" message:@"Enter basket name and date" preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *action = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
         
     }];
@@ -45,9 +45,26 @@
         [textField setKeyboardType:UIKeyboardTypeDefault];
         textField.placeholder = @"Basket name";
     }];
+    [controller addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        [textField setKeyboardType:UIKeyboardTypeNumbersAndPunctuation];
+        textField.placeholder = @"DD-MM-YYYY";
+    }];
     action = [UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         UITextField *textFieldName = controller.textFields[0];
-        [self createBasketWithName:textFieldName.text];
+        UITextField *textFieldDate = controller.textFields[1];
+        
+        //Detect Date
+        __block NSDate *detectedDate;
+        
+        NSDataDetector *detector = [NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeDate error:nil];
+        [detector enumerateMatchesInString:textFieldDate.text
+                                   options:kNilOptions
+                                     range:NSMakeRange(0, [textFieldDate.text length])
+                                usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+         { detectedDate = result.date; }];
+        
+        //Create Basket
+        [self createBasketWithName:textFieldName.text andDate:detectedDate];
     }];
     
     [controller addAction:action];
@@ -76,11 +93,13 @@
     return _fetchedResultsController;
 }
 
--(void) createBasketWithName:(NSString *)name {
+-(void) createBasketWithName:(NSString *)name andDate: (NSDate*) date{
     NSManagedObjectContext *context = [CoreDataManager sharedInstance].managedObjectContext;
     CDBasket *basket = [NSEntityDescription insertNewObjectForEntityForName:[[CDBasket class] description]
                                               inManagedObjectContext:context];
     basket.name = name;
+    basket.sheduleDate = date;
+    NSLog(@"Basket date: %@", basket.sheduleDate);
     [[CoreDataManager sharedInstance] saveContext];
 }
 

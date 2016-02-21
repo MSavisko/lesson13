@@ -122,7 +122,7 @@
 - (NSString *)totalPriceForProduct:(CDProduct*)product {
     NSDecimalNumber * productAmount = [[NSDecimalNumber alloc]initWithUnsignedLong:product.amount];
     NSDecimalNumber * totalResult = [product.price decimalNumberByMultiplyingBy:productAmount];
-    NSString * total = [NSString stringWithFormat:@"Number: %ld Total: %@", (long)product.amount, totalResult];
+    NSString * total = [NSString stringWithFormat:@"Amount: %ld. Total price: %@", (long)product.amount, totalResult];
     return total;
 }
 
@@ -155,9 +155,7 @@
         NSDecimalNumber * decimalAmount = [[NSDecimalNumber alloc]initWithUnsignedLong:product.amount];
         NSDecimalNumber * intermediarySum = [product.price decimalNumberByMultiplyingBy:decimalAmount];
         totalSum = [totalSum decimalNumberByAdding:intermediarySum];
-        NSLog(@"Total Sum in FOR: %@", totalSum);
     }
-    NSLog(@"Total Sum AFTER FOR: %@", totalSum);
     NSString * footer = [NSString stringWithFormat:@"Total Sum: %@", totalSum];
     
     return footer;
