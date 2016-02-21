@@ -82,8 +82,9 @@
     NSManagedObjectContext *context = [CoreDataManager sharedInstance].managedObjectContext;
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:[[CDBasket class] description]];
     
-    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES];
-    request.sortDescriptors = @[sortDescriptor];
+    NSSortDescriptor *sortDescriptorDate = [NSSortDescriptor sortDescriptorWithKey:@"sheduleDate" ascending:YES];
+    NSSortDescriptor *sortDescriptorName = [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES];
+    request.sortDescriptors = @[sortDescriptorDate, sortDescriptorName];
 
     _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:request managedObjectContext:context sectionNameKeyPath:nil cacheName:nil];
     _fetchedResultsController.delegate = self;
